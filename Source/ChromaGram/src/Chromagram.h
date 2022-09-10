@@ -22,6 +22,7 @@
 #ifndef __CHROMAGRAM_H
 #define __CHROMAGRAM_H
 
+#define USE_KISS_FFT
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <vector>
