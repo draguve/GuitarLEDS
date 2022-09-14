@@ -9,6 +9,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+juce::OSCSender sender;
+
 //==============================================================================
 NewProjectAudioProcessorEditor::NewProjectAudioProcessorEditor (NewProjectAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
@@ -17,6 +19,8 @@ NewProjectAudioProcessorEditor::NewProjectAudioProcessorEditor (NewProjectAudioP
     // editor's size to whatever you need it to be.
     setSize (400, 300);
     startTimerHz(10);
+    if (!sender.connect("127.0.0.1", 9001))   // [4]
+        showConnectionErrorMessage("Error: could not connect to UDP port 9001.");
 }
 
 NewProjectAudioProcessorEditor::~NewProjectAudioProcessorEditor()
@@ -25,6 +29,15 @@ NewProjectAudioProcessorEditor::~NewProjectAudioProcessorEditor()
 
 void NewProjectAudioProcessorEditor::timerCallback(){
     repaint();
+    if (!sender.send("/juce/rootnote", (float)audioProcessor.getRootNote()))
+        showConnectionErrorMessage("Error: could not send OSC message.");
+}
+
+void NewProjectAudioProcessorEditor::showConnectionErrorMessage(const juce::String& messageText) {
+    juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon,
+        "Connection error",
+        messageText,
+        "OK");
 }
 
 //==============================================================================
