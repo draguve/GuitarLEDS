@@ -108,7 +108,7 @@ public:
 	{
 		open(portPath);
 	}
-    SerialPort (const juce::String& portPath, const SerialPortConfig& config, DebugFunction theDebugLog) : SerialPort (theDebugLog)
+    SerialPort (const juce::String& portPath, SerialPortConfig& config, DebugFunction theDebugLog) : SerialPort (theDebugLog)
 	{
 		open(portPath);
 		setConfig(config);

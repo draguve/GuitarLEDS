@@ -32,3 +32,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NewProjectAudioProcessorEditor)
 };
+
+void CustomDebugFunction(juce::String a, juce::String b);

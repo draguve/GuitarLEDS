@@ -10,6 +10,9 @@
 #include "PluginEditor.h"
 #include "juce_serialport/juce_serialport.h"
 
+SerialPortConfig config = SerialPortConfig(115200, 8, SerialPortConfig::SERIALPORT_PARITY_NONE, SerialPortConfig::STOPBITS_1, SerialPortConfig::FLOWCONTROL_NONE);
+
+
 //==============================================================================
 NewProjectAudioProcessorEditor::NewProjectAudioProcessorEditor (NewProjectAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
@@ -18,7 +21,25 @@ NewProjectAudioProcessorEditor::NewProjectAudioProcessorEditor (NewProjectAudioP
     // editor's size to whatever you need it to be.
     setSize (400, 300);
     juce::StringPairArray portlist = SerialPort::getSerialPortPaths();
+	if(portlist.size())
+	{
+		//open the first port on the system
+		SerialPort * pSP = new SerialPort(portlist.getAllValues()[0],config,(DebugFunction)CustomDebugFunction);
+		if(pSP->exists())
+		{
+			//create streams for reading/writing
+			SerialPortOutputStream * pOutputStream = new SerialPortOutputStream(pSP);
+			SerialPortInputStream * pInputStream = new SerialPortInputStream(pSP);
+
+			pOutputStream->write("on", 22); //write some bytes
+
+		}
+	}
     startTimerHz(10);
+}
+
+void CustomDebugFunction(juce::String a,juce::String b) {
+
 }
 
 NewProjectAudioProcessorEditor::~NewProjectAudioProcessorEditor()
