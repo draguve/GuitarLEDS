@@ -13,6 +13,7 @@
 #include "ChromaGram/src/Chromagram.h"
 #include "ChromaGram/src/ChordDetector.h"
 
+juce::OSCSender sender;
 Chromagram* chromagram = NULL;
 ChordDetector* detector = new ChordDetector();
 double frame[8192];
@@ -30,13 +31,15 @@ NewProjectAudioProcessor::NewProjectAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),oscThread(*this)
 #endif
 {
+    oscThread.startThread();
 }
 
 NewProjectAudioProcessor::~NewProjectAudioProcessor()
 {
+    oscThread.stopThread(0);
 }
 
 //==============================================================================
@@ -229,3 +232,29 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new NewProjectAudioProcessor();
 }
+
+
+// 
+void NewProjectAudioProcessor::OSCThread::showConnectionErrorMessage(const juce::String& messageText) {
+    juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon,
+        "Connection error",
+        messageText,
+        "OK");
+}
+
+
+NewProjectAudioProcessor::OSCThread::OSCThread(NewProjectAudioProcessor& p) : Thread("Meter thread"), audioProcessor(p) {
+
+}
+
+void NewProjectAudioProcessor::OSCThread::run() {
+    startTimerHz(60);
+    if (!sender.connect("127.0.0.1", 9001))   // [4]
+        showConnectionErrorMessage("Error: could not connect to UDP port 9001.");
+}
+
+void NewProjectAudioProcessor::OSCThread::timerCallback() {
+    if (!sender.send("/juce/rootnote", (float)audioProcessor.getRootNote()))
+        showConnectionErrorMessage("Error: could not send OSC message.");
+}
+

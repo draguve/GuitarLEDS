@@ -60,7 +60,19 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+public:
+    class OSCThread : public juce::Thread, public juce::Timer {
+    public:
+        OSCThread(NewProjectAudioProcessor& p);
+        void showConnectionErrorMessage(const juce::String& messageText);
+        void run() override;
+        void timerCallback() override;
+        NewProjectAudioProcessor& audioProcessor;
+    };
+
 private:
     //==============================================================================
+    NewProjectAudioProcessor::OSCThread oscThread;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NewProjectAudioProcessor)
+
 };
