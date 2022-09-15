@@ -26,10 +26,17 @@ public:
     void timerCallback() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
+    class OSCThread : public juce::Thread,public juce::Timer {
+    public:
+        OSCThread(NewProjectAudioProcessor& p);
+        void showConnectionErrorMessage(const juce::String& messageText);
+        void run() override;
+        void timerCallback() override;
+        NewProjectAudioProcessor& audioProcessor;
+    };
+
     NewProjectAudioProcessor& audioProcessor;
-    void showConnectionErrorMessage(const juce::String& messageText);
+    OSCThread oscThread;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NewProjectAudioProcessorEditor)
 
 };
